@@ -1,49 +1,168 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+        <title>Group meeting 2018-10-12</title>
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/custom.css">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h2>A collection of issues and how I solved them</h2>
+                    <h3>(or not...)</h3>
+                    <p>Niklas M&auml;hler<br>Group meeting 2018-10-12</p>
+                </section>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+                <section data-background-image="img/complex.png" data-background-opacity="0.1">
+                    <section>
+                        <h2>Complex</h2>
+                        <p>Visualisation</p>
+                    </section>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
-			});
-		</script>
-	</body>
+                    <section>
+                        <h2>The problem</h2>
+                        <p>How to visualise additional information on the network in a general way</p>
+                    </section>
+
+                    <section>
+                        <p>First tries involved creating new tables for each of the additional properties that we wanted to visualise</p>
+                        <ul>
+                            <li>Not very general</li>
+                            <li>Database layout will be different depending on data</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Extensions for nodes and edges</h2>
+                        <p>Add three general tables</p>
+                    </section>
+
+                    <section>
+                        <h2><code>extension</code> table</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>name</code></td>
+                                    <td>Name of the extension</td>
+                                </tr>
+                                <tr>
+                                    <td><code>description</code></td>
+                                    <td>Free text description</td>
+                                </tr>
+                                <tr>
+                                    <td><score>score_definition</code></td>
+                                    <td>Definition of the score associated with the extension</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2><code>extension_gene</code> table</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>gene_id</code></td>
+                                    <td>Gene for which the extension should be applied</td>
+                                </tr>
+                                <tr>
+                                    <td><code>extension_name</code></td>
+                                    <td>Name of the extension this belongs to</td>
+                                </tr>
+                                <tr>
+                                    <td><code>score</code></td>
+                                    <td>Score of this gene for this extension</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2><code>extension_edge</code> table</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Variable</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>gene_id1</code></td>
+                                    <td>Source gene</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gene_id2</code></td>
+                                    <td>Target gene</td>
+                                </tr>
+                                <tr>
+                                    <td><code>network_id1</code></td>
+                                    <td>Network that the source gene belongs to</td>
+                                </tr>
+                                <tr>
+                                    <td><code>network_id2</code></td>
+                                    <td>Network that the target gene belongs to</td>
+                                </tr>
+                                <tr>
+                                    <td><code>extension_name</code></td>
+                                    <td>Name of the extension this belongs to</td>
+                                </tr>
+                                <tr>
+                                    <td><code>score</code></td>
+                                    <td>Score of this gene for this extension</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
 </html>
