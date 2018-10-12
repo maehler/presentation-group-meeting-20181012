@@ -27,8 +27,12 @@ document.getElementsByTagName( 'head' )[0].appendChild( link );
             <div class="slides">
                 <section>
                     <h2>A collection of issues and how I solved them</h2>
-                    <h3>(or not...)</h3>
-                    <p>Niklas M&auml;hler<br>Group meeting 2018-10-12</p>
+                    <h4>(or how I didn't)</h4>
+                    <p><small>Niklas M&auml;hler, Group meeting 2018-10-12</small></p>
+                </section>
+
+                <section>
+                    <img src="https://imgs.xkcd.com/comics/fixing_problems.png">
                 </section>
 
                 <section data-background-image="img/complex.png" data-background-opacity="0.1">
@@ -144,6 +148,207 @@ document.getElementsByTagName( 'head' )[0].appendChild( link );
                             </tbody>
                         </table>
                     </section>
+
+                    <section>
+                        <p>These tables together with a config file for each extension makes it possible to display multiple extensions for each gene in a very flexible way.</p>
+                        <img class="stretch" src="img/complex_extension.png">
+                    </section>
+                </section>
+
+                <section data-background-image="img/complex.png" data-background-opacity="0.1">
+                    <section>
+                        <h2>Complex</h2>
+                        <p>User interface issue</p>
+                    </section>
+
+                    <section>
+                        <h2>The problem</h2>
+                        <p>How to indicate selected networks and what is the active network?</p>
+                    </section>
+
+                    <section>
+                        <img data-src="img/complex_ui.gif">
+                    </section>
+
+                    <section>
+                        <p>Possible solution: drag-and-drop</p>
+                        <img src="img/complex_ui_concept.png">
+                    </section>
+
+                    <section>
+                        <img src="img/complex_ui_concept2.png">
+                    </section>
+
+                    <section>
+                        <h2>Possible improvements</h2>
+                        <ul>
+                            <li>Species indicator of some kind</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section data-background-image="https://farm6.staticflickr.com/5690/21457742918_964178f889_o_d.jpg" data-background-opacity="0.2">
+                    <section>
+                        <h2>Spruce assembly</h2>
+                        <p>Managing 4.5 million SLURM jobs</p>
+                    </section>
+
+                    <section>
+                        <h2>Overview</h2>
+                        <ul>
+                            <li>Split sequence data into 3016 blocks of 200 megabases</li>
+                            <li>Align all blocks against eachother</li>
+                            <li>Keep track of repeat regions</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Approach</h2>
+                        <ul>
+                            <li>Write a python library</li>
+                            <li>Store jobs in an SQLite database</li>
+                            <li>Submit jobs and check their status</li>
+                            <li>Restart jobs/masking server if things fail</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h1>Easy!</h1>
+                    </section>
+                </section>
+
+                <section data-background-image="https://farm6.staticflickr.com/5690/21457742918_964178f889_o_d.jpg" data-background-opacity="0.2">
+                    <section>
+                        <h2>Spruce assembly</h2>
+                        <p>Dependency hell</p>
+                    </section>
+
+                    <section>
+                        <h2>Problem: dependencies</h2>
+                        <ul>
+                            <li>Each job is dependent on the masking server</li>
+                            <li>Masking server needs a lot of memory</li>
+                            <li>We need to know where the masking server is running</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>First solution</h2>
+                        <p>Choose a node where the masking server has to run</p>
+                    </section>
+
+                    <section>
+                        <h3>Pros</h3>
+                        <ul>
+                            <li>Easy to implement</li>
+                            <li>We know the IP of the masking server immediately</li>
+                            <li>We can queue alignment jobs immediately</li>
+                        </ul>
+                        <h3>Cons</h3>
+                        <ul>
+                            <li>It might take a long time for the masking server to start</li>
+                            <li>Masking server IP hard-coded in the alignment scripts</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Second solution</h2>
+                        <p>Let SLURM choose the node and store the masking server status in the database</p>
+                    </section>
+
+                    <section>
+                        <h3>Pros</h3>
+                        <ul>
+                            <li>The masking server starts faster</li>
+                            <li>No hard-coded IP</li>
+                            <li>We can still queue alignment jobs immediately</li>
+                        </ul>
+                        <h3>Cons</h3>
+                        <ul>
+                            <li>If the masking server goes down, it is likely that the IP changes and we have to restart all alignment jobs</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section data-background-image="https://farm6.staticflickr.com/5690/21457742918_964178f889_o_d.jpg" data-background-opacity="0.2">
+                    <section>
+                        <h2>Spruce assembly</h2>
+                        <p>SLURM can be reaaaaally slow</p>
+                    </section>
+
+                    <section>
+                        <h2>Problem</h2>
+                        <p>Jobs are submitted one by one, and this can be really slow, and sometimes even fail if SLURM is very busy</p>
+                    </section>
+
+                    <section>
+                        <pre style="font-size: 0.35em; width: 100%;"><code>Traceback (most recent call last):
+  File "/proj/uppstore2017145/V3/software/miniconda3/envs/marvel/bin/marvelous_jobs", line 11, in <module>
+    sys.exit(main())
+  File "/proj/uppstore2017145/V3/software/miniconda3/envs/marvel/lib/python3.6/site-packages/marvelous_jobs/__main__.py", line 542, in main
+    update_and_restart()
+  File "/proj/uppstore2017145/V3/software/miniconda3/envs/marvel/lib/python3.6/site-packages/marvelous_jobs/__main__.py", line 352, in update_and_restart
+    dj.start()
+  File "/proj/uppstore2017145/V3/software/miniconda3/envs/marvel/lib/python3.6/site-packages/marvelous_jobs/job.py", line 167, in start
+    return super().start(str(self.block_id1), str(self.block_id2))
+  File "/proj/uppstore2017145/V3/software/miniconda3/envs/marvel/lib/python3.6/site-packages/marvelous_jobs/job.py", line 54,
+in start
+    raise RuntimeError(output[1].decode('utf-8'))
+RuntimeError: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Possible solution</h2>
+                        <p>Instead of submitting single jobs, switch to job arrays</p>
+                    </section>
+
+                    <section>
+                        <h2>Job arrays</h2>
+                        <ul>
+                            <li>Requires all jobs to have the same configuration</li>
+                            <li><code>sbatch --array=1-20 ...</code></li>
+                            <li>Sets the variable <code>$SLURM_ARRAY_TASK_ID</code></li>
+                            <li>Use this to access jobs in the database</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <pre><code>#!/bin/bash -l
+#SBATCH -t 1:00:00
+#SBATCH -n 4
+set -eu
+project=$(sqlite3 /scratch/marvelous_test/testdb "SELECT name FROM project")
+block1=$(sqlite3 /scratch/marvelous_test/testdb "SELECT block_id1 FROM daligner_job WHERE rowid = $SLURM_ARRAY_TASK_ID")
+block2=$(sqlite3 /scratch/marvelous_test/testdb "SELECT block_id2 FROM daligner_job WHERE rowid = $SLURM_ARRAY_TASK_ID")
+
+maskip=$(sqlite3 /scratch/marvelous_test/testdb "SELECT ip FROM masking_job")
+if [[ false = true ]] && [[ -z $maskip ]]; then
+        echo >&2 "error: no masking server available"
+        exit 1
+fi
+
+/proj/uppstore2017145/V3/software/marvel/bin/daligner -v -I -t 20 -e 0.7 -j 4 "${project}.${block1}" "${project}.${block2}"</code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Pros</h3>
+                        <ul>
+                            <li>We can submit thousands of jobs in a fraction of a second</li>
+                        </ul>
+                        <h3>Cons</h3>
+                        <ul>
+                            <li>Requires quite a lot of reworking of the code</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Tests</h3>
+                        <p>Started writing tests for the package using <a href="https://nose.readthedocs.io/en/latest/">nose</a></p>
+                    </section>
+                </section>
+
+                <section>
+                    <img src="https://imgs.xkcd.com/comics/computer_problems.png">
                 </section>
             </div>
         </div>
@@ -161,7 +366,8 @@ document.getElementsByTagName( 'head' )[0].appendChild( link );
                     { src: 'plugin/markdown/markdown.js' },
                     { src: 'plugin/notes/notes.js', async: true },
                     { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-                ]
+                ],
+                history: true
             });
         </script>
     </body>
